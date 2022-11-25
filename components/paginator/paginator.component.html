@@ -1,0 +1,16 @@
+<div class="paginator-main">
+	<div class="paginator-el">
+		<form [formGroup]="selectPageForm" (ngSubmit)="selectPageFormSubmit()">
+			<input type="text" formControlName="page">
+		</form>
+		<span> di {{ pages | number: '1.0-0' }}.</span>
+	</div>
+	<div class="paginator-el">
+		<span>{{ pagination.first }} - {{ pagination.last }} di {{ totalRecords }} </span>
+	</div>
+	<div class="paginator-el">
+		<select [ngModel]="pageable.size" (ngModelChange)="selectSize($event)">
+			<option *ngFor="let pageSizeOption of pageSizeOptions">{{ pageSizeOption }}</option>
+		</select>
+	</div>
+</div>

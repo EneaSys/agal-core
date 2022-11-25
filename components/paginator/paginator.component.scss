@@ -1,0 +1,44 @@
+.paginator-main {
+	overflow: hidden;
+	padding: 0px 10px;
+    border: 1px solid;
+	border-radius: 3px;
+    color: #607D8B;
+	max-width: 450px;
+
+	input {
+		width: 40px;
+		height: 20px;
+		border: 1px solid;
+		background-color: white;
+	}
+
+	select {
+		border: 1px solid;
+	}
+
+	.paginator-el {
+		float: left;
+		padding: 0 4px;
+
+		span, form, input, select {
+			float: left;
+		}
+
+		span {
+			padding: 8.5px 0;
+		}
+		
+		form {
+			padding: 0;
+		}
+
+		input, select {
+			margin: 0 5px;
+			text-align: center;
+			border-top: 0px;
+			border-bottom: 0px;
+			height: 38px;
+		}
+	}
+}
