@@ -1,59 +1,65 @@
-import { Directive, EventEmitter, Input, OnInit, Output, SimpleChanges } from "@angular/core";
+import { Directive, EventEmitter, Input, Output, SimpleChanges } from "@angular/core";
 import { AgalListDisplayModality } from "@agal-core/enum/list-display-modality";
 import { LazyLoadEvent } from "primeng/api";
 import { AgalCommonService } from "../services/common.service";
 import { AgalGenericComponent } from "./agal-generic-component";
+import { AgalEvent, AgalEventType } from "@agal-core/modules/eventer/services/eventer.service";
 
 @Directive()
-export abstract class AgalGenericTable2 extends AgalGenericComponent implements OnInit {
+export abstract class AgalGenericTable2 extends AgalGenericComponent {
 	_apiFilters: any = {};
-		
+
 	@Input() filters: any;
-    @Input() paginator: any;
+	@Input() paginator: any;
 	@Input() sort: string[] = [];
 	@Output() sortChange = new EventEmitter<string[]>();
 
-    @Input() view: AgalListDisplayModality = AgalListDisplayModality.TABLE;
-    
+	@Input() view: AgalListDisplayModality = AgalListDisplayModality.TABLE;
+
 	@Input() dcs: string[] = ['_ck', 'id'];
-    @Input() buttons: any[];
+	@Input() buttons: any[];
 
 	@Output() resultList = new EventEmitter<any[]>();
 	@Output() resultCount = new EventEmitter<number>();
-	
+
 	@Input() selectedElements: any[] = [];
 	@Output() selectedElementsChange = new EventEmitter<any[]>()
 
 	constructor(
-        agcs: AgalCommonService
+		agcs: AgalCommonService
 	) { super(agcs); }
-	
-	loading: boolean = false;
 
 	ds: any[];
 	totalRecords: number = 0;
 
-	ngOnInit() {
-		if(this.paginator === undefined) {
-			this.loadData();
-		}
+	override init() {
+		this.subscriptions.push(this.agcs.eventer.onEvent().subscribe(
+			(event: AgalEvent) => {
+				switch (event.type) {
+					case AgalEventType.RELOAD: this.reloadFromEvent(event); break;
+					default: break;
+				}
+			}
+		));
 	}
+
+	protected reloadFromEvent(event: AgalEvent) { }
 
 	ngOnChanges(changes: SimpleChanges) {
 		let nOfChange = 0;
-		for(let change in changes) { nOfChange++ }
+		for (let change in changes) { nOfChange++ }
 
-		if(nOfChange == 1 && changes['selectedElements'] !== undefined) {
+		if (nOfChange == 1 && changes['selectedElements'] !== undefined) {
 			return;
 		}
-		if(nOfChange == 1 && changes['dcs'] !== undefined) {
+		if (nOfChange == 1 && changes['dcs'] !== undefined) {
 			return;
 		}
 		this.loadData();
 	}
 
-    lazyLoad(event: LazyLoadEvent) {
-        if(event.sortField !== undefined && event.sortOrder !== undefined) {
+	lazyLoad(event: LazyLoadEvent) {
+		if (event.sortField !== undefined && event.sortOrder !== undefined) {
 			let sort = [];
 			{
 				let sortable: string = event.sortField + ',';
@@ -63,14 +69,20 @@ export abstract class AgalGenericTable2 extends AgalGenericComponent implements 
 			this.sort = sort;
 			this.loadData();
 			this.sortChange.emit(sort);
-        }
-    }
+		}
+	}
 
 	decoreButtons(items: any[], e: any) {
-		for(let item of items) {
-			item.data = e;
+		let arr: any[] = [];
+		for (let item of items) {
+			arr.push({
+				label: item.label,
+				icon: item.icon,
+				command: item.command,
+				data: e
+			})
 		}
-		return items;
+		return arr;
 	}
 
 	selection(elements: any[]) {
@@ -78,28 +90,21 @@ export abstract class AgalGenericTable2 extends AgalGenericComponent implements 
 		this.selectedElementsChange.emit(this.selectedElements);
 	}
 
-    async loadData() {
-		if(this.loading) {
-			return;
+	override async _loadData() {
+		this._apiFilters = { ...this.filters };
+		if (this._apiFilters === undefined) {
+			this._apiFilters = {};
 		}
-		this.loading = true;
-		{
-			this._apiFilters = { ...this.filters };
-			if(this._apiFilters === undefined) {
-				this._apiFilters = {};
-			}
-			if(this.paginator !== undefined) {
-				this._apiFilters.page = this.paginator.page;
-				this._apiFilters.size = this.paginator.size;
-			}
-			if(this.sort.length > 0) {
-				this._apiFilters.sort = this.sort;
-			}
-			await this.callApi(this._apiFilters);
-			this.emitUpdate();
+		if (this.paginator !== undefined) {
+			this._apiFilters.page = this.paginator.page;
+			this._apiFilters.size = this.paginator.size;
 		}
-        this.loading = false;
-    }
+		if (this.sort.length > 0) {
+			this._apiFilters.orderBy = this.sort;
+		}
+		await this.callApi(this._apiFilters);
+		this.emitUpdate();
+	}
 
 	protected async callApi(filters: any) { }
 

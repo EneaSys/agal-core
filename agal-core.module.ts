@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -14,25 +12,37 @@ import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 
 import { AgalCommonService } from './services/common.service';
-import { AgalPaginatorComponent } from './components/paginator/paginator.component';
+import { AgalPaginatorComponent } from './modules/paginator/components/paginator/paginator.component';
+import { AgalAutocompleteComponent } from './modules/autocomplete/components/autocomplete/autocomplete.component';
+import { AgalAutocompleteDirective } from './modules/autocomplete/directives/agal-autocomplete.directive';
+
+import { AgalEventerModule } from './modules/eventer/eventer.module';
 
 @NgModule({
 	imports: [
 		CommonModule,
+		/* add this 2 imports only in app module
 		BrowserModule,
 		HttpClientModule,
-
+		*/
 		FormsModule,
 		ReactiveFormsModule,
 		FlexLayoutModule,
 
 		DropdownModule,
+
+		AgalEventerModule,
+
 	],
 	providers: [
 		AgalCommonService,
 	],
 	declarations: [
 		AgalPaginatorComponent,
+		AgalAutocompleteComponent,
+
+		AgalAutocompleteDirective,
+
 	],
 	exports: [
 		CommonModule,
@@ -48,6 +58,12 @@ import { AgalPaginatorComponent } from './components/paginator/paginator.compone
 		CardModule,
 
 		AgalPaginatorComponent,
+		AgalAutocompleteComponent,
+
+		AgalAutocompleteDirective,
+
+		AgalEventerModule,
+
 	]
 })
 export class AgalCoreModule { }

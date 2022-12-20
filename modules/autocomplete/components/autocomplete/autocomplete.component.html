@@ -1,0 +1,3 @@
+<div class="agal-autocomplete wrapper" *ngIf="show">
+    <div *ngFor="let element of filteredElements | async" (click)="select(element)">{{ displayFn(element) }}</div>
+</div>
